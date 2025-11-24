@@ -13,6 +13,7 @@ export default function App() {
     axios.get(API).then((res) => setTodos(res.data));
   }, []);
 
+  // Add todo
   const addTodo = () => {
     if (!text.trim()) return;
 
@@ -22,14 +23,23 @@ export default function App() {
     });
   };
 
+  // Delete todo
   const deleteTodo = (id) => {
     axios.delete(`${API}/${id}`).then(() => {
       setTodos(todos.filter((t) => t._id !== id));
     });
   };
 
+  // Toggle completed
   const toggleTodo = (id) => {
     axios.put(`${API}/${id}`).then((res) => {
+      setTodos(todos.map((t) => (t._id === id ? res.data : t)));
+    });
+  };
+
+  // Update text
+  const updateTodo = (id, newText) => {
+    axios.put(`${API}/${id}/update`, { text: newText }).then((res) => {
       setTodos(todos.map((t) => (t._id === id ? res.data : t)));
     });
   };
@@ -70,43 +80,11 @@ export default function App() {
               todo={todo}
               onDelete={deleteTodo}
               onToggle={toggleTodo}
+              onUpdate={updateTodo}   // ✅ Correct now
             />
           ))}
         </div>
       </div>
     </div>
   );
-}  const express = require('express');
-const router = express.Router();
-const Todo = require('../models/Todo');
-
-// Get all todos
-router.get("/", async (req, res) => {
-    const todos = await Todo.find();
-    res.json(todos);
-});
-
-// Add todo
-router.post("/", async (req, res) => {
-    const newTodo = new Todo({
-        text: req.body.text
-    });
-    await newTodo.save();
-    res.json(newTodo);
-});
-
-// Delete todo
-router.delete("/:id", async (req, res) => {
-    await Todo.findByIdAndDelete(req.params.id);
-    res.json({ message: "Todo deleted" });
-});
-
-// Toggle completed
-router.put("/:id", async (req, res) => {
-    const todo = await Todo.findById(req.params.id);
-    todo.completed = !todo.completed;
-    await todo.save();
-    res.json(todo);
-});
-
-module.exports = router;  
+}
