@@ -13,6 +13,7 @@ export default function App() {
     axios.get(API).then((res) => setTodos(res.data));
   }, []);
 
+  // Add todo
   const addTodo = () => {
     if (!text.trim()) return;
 
@@ -22,14 +23,23 @@ export default function App() {
     });
   };
 
+  // Delete todo
   const deleteTodo = (id) => {
     axios.delete(`${API}/${id}`).then(() => {
       setTodos(todos.filter((t) => t._id !== id));
     });
   };
 
+  // Toggle completed
   const toggleTodo = (id) => {
     axios.put(`${API}/${id}`).then((res) => {
+      setTodos(todos.map((t) => (t._id === id ? res.data : t)));
+    });
+  };
+
+  // ✅ Update text
+  const updateTodo = (id, newText) => {
+    axios.put(`${API}/${id}/update`, { text: newText }).then((res) => {
       setTodos(todos.map((t) => (t._id === id ? res.data : t)));
     });
   };
@@ -70,6 +80,7 @@ export default function App() {
               todo={todo}
               onDelete={deleteTodo}
               onToggle={toggleTodo}
+              onUpdate={updateTodo}  {/* ✅ Added */}
             />
           ))}
         </div>
